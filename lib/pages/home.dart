@@ -10,41 +10,74 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    home_data = ModalRoute.of(context).settings.arguments;
+    home_data = home_data.isNotEmpty
+        ? home_data
+        : ModalRoute.of(context).settings.arguments;
     print(home_data);
 
+    //set bg
+    String bgImage = home_data['isDaytime'] ? 'day.png' : 'night.png';
+    Color bgColor = home_data['isDaytime'] ? Colors.blue : Colors.indigo;
+
     return Scaffold(
+        backgroundColor: bgColor,
         body: SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0.0, 120.0, 0.0, 0.0),
-        child: Column(
-          children: [
-            FlatButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/location');
-                },
-                icon: Icon(Icons.edit_location),
-                label: Text('Edit Location')),
-            SizedBox(
-              height: 20.0,
+          child: Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/$bgImage'),
+                fit: BoxFit.cover,
+              ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  home_data['location'],
-                  style: TextStyle(fontSize: 28.0, letterSpacing: 2.0),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(0.0, 120.0, 0.0, 0.0),
+              child: Column(
+                children: [
+                  FlatButton.icon(
+                      onPressed: () async {
+                        dynamic result =
+                            await Navigator.pushNamed(context, '/location');
+                        setState(() {
+                          home_data = {
+                            'time': result['time'],
+                            'location': result['location'],
+                            'isDaytime': result['isDaytime'],
+                            'flag': result['flag']
+                          };
+                        });
+                      },
+                      icon: Icon(
+                        Icons.edit_location,
+                        color: Colors.grey[300],
+                      ),
+                      label: Text(
+                        'Edit Location',
+                        style: TextStyle(color: Colors.grey[300]),
+                      )),
+                  SizedBox(
+                    height: 20.0,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        home_data['location'],
+                        style: TextStyle(
+                            fontSize: 28.0,
+                            letterSpacing: 2.0,
+                            color: Colors.white),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20.0),
+                  Text(
+                    home_data['time'],
+                    style: TextStyle(fontSize: 66.0, color: Colors.white),
+                  )
+                ],
+              ),
             ),
-            SizedBox(height: 20.0),
-            Text(
-              home_data['time'],
-              style: TextStyle(fontSize: 66.0),
-            )
-          ],
-        ),
-      ),
-    ));
+          ),
+        ));
   }
 }
